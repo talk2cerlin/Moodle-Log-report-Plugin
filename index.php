@@ -3,7 +3,13 @@
     require_once('../../../config.php');
     require_once($CFG->dirroot.'/lib/statslib.php');
     require_once($CFG->libdir.'/adminlib.php');
-	// require_login();
+	// error_reporting(E_ALL);
+	// ini_set ('display_errors', 'on');
+	// ini_set ('log_errors', 'on');
+	// ini_set ('display_startup_errors', 'on');
+	// ini_set ('error_reporting', E_ALL);
+	// $CFG->debug = DEBUG_ALL;
+	require_login();
 	global $USER;
 	
 	if(is_siteadmin($USER->id) && isset($_POST['reportfor']) && trim($_POST['reportfor']) != null){
@@ -44,7 +50,75 @@
 							$excelwrite->excelReportGenerator($exceltitle,$exceldata);
 						}
 						elseif($activity == 'top10courseswithuserdetails'){
+							$reportingobj = new LogReporting();
+							$reportingobj->loadLibrary('PHPExcel');
+							$excel = new PHPExcel();
+							$fromdate = strtotime(trim($_POST['fromdate']));
+							$todate = strtotime(trim($_POST['todate']));
+							// echo $fromdate." , ".$todate." , ".$activity;
 							
+							for($i=0;$i<10;$i++){
+								$returndata = $DB->get_records_sql("
+									SELECT COUNT( * ) AS TotalCount, ml.`course` AS CourseID, mc.`fullname` AS CourseName
+									FROM  `mdl_log` ml
+									JOIN  `mdl_course` mc ON mc.id = ml.course
+									WHERE  `module` =  'course'
+									AND  `action` =  'view'
+									AND TIME >".$fromdate."
+									AND TIME <".$todate."
+									GROUP BY course
+									ORDER BY TotalCount DESC 
+									LIMIT ". $i ." , 1"
+								);
+								foreach($returndata as $returnobj){
+									$newreturndata = $DB->get_records_sql("
+										SELECT COUNT( * ) AS TotalCount,mc.`fullname` AS CourseName,CONCAT(mu.firstname,' ',mu.lastname) as username
+										FROM  `mdl_log` ml
+										JOIN  `mdl_course` mc ON mc.id = ml.course
+										JOIN `mdl_user` mu ON mu.id = ml.userid
+										WHERE  `module` =  'course'
+										AND  `action` =  'view'
+										AND TIME >".$fromdate."
+										AND TIME <".$todate."
+										AND course = ".$returnobj->courseid."
+										GROUP BY USERID
+										ORDER BY totalcount DESC"
+									);
+									$alphas = range('A', 'Z');
+									if($i == 0){
+										$excel->setActiveSheetIndex($i);
+										$excel->getActiveSheet()->setTitle(substr($returnobj->coursename,0,29));
+									}
+									else{
+										$excel->createSheet($i);
+										$excel->setActiveSheetIndex($i);
+										$excel->getActiveSheet()->setTitle(substr($returnobj->coursename,0,29)); // Since the maximum length of sheet name is 30
+									}
+									$exceltitle = array();
+									$exceltitle[] = "Total Number of Visits";
+									$exceltitle[] = "Course Name";
+									$exceltitle[] = "User Name";
+									$increment = 0;
+									foreach($exceltitle as $title){
+										$excel->getActiveSheet()->setCellValue($alphas[$increment] . 1,$title);
+										$increment++;
+									}
+									$increment = 2;
+									foreach($newreturndata as $userdata){
+										$excel->getActiveSheet()->setCellValue($alphas[0] . $increment,$userdata->totalcount);
+										$excel->getActiveSheet()->setCellValue($alphas[1] . $increment,$userdata->coursename);
+										$excel->getActiveSheet()->setCellValue($alphas[2] . $increment,$userdata->username);
+										$increment++;
+									}									
+								}
+							}
+							$excel->setActiveSheetIndex(0);
+							$filename='Report Export.xls'; 
+							header('Content-Type: application/vnd.ms-excel'); 
+							header('Content-Disposition: attachment;filename="'.$filename.'"'); 
+							header('Cache-Control: max-age=0');
+							$objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel5');  
+							$objWriter->save('php://output');
 						}
 					}
 				break;
@@ -109,9 +183,9 @@
 			$objWriter->save('php://output');
 		}
 		
-		protected function loadLibrary($libname){
+		public function loadLibrary($libname){
 			if(file_exists('./libraries/'.$libname.".php")){
-				include './libraries/'.$libname.".php";
+				include_once './libraries/'.$libname.".php";
 			}
 			else{
 				return false;

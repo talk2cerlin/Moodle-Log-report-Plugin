@@ -1,13 +1,14 @@
+<script src="js/jquery-1.10.2.min.js"></script>
 <link rel="stylesheet" href="css/jquery-ui.css">
 <link rel="stylesheet" href="css/bootstrap.min.css">
-<script>$ = jQuery;</script>
 <script src="js/jquery-ui.js"></script>
 <script>
  $(function() {
+	$( "#tabs" ).css('display','block');
     $( "#tabs" ).tabs();
   });
   </script>
-<div id="tabs">
+<div id="tabs" style="display:none">
   <ul>
     <li><a href="#tabs-1">Login Report</a></li>
     <li><a href="#tabs-2">Course Report</a></li>
