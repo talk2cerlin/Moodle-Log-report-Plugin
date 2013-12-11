@@ -1,4 +1,9 @@
 <?php
+/**
+*
+* @author 	: Cerlin ST - https://github.com/tak2cerlin
+* @version 	: 0.0.1
+**/
 
     require_once('../../../config.php');
     require_once($CFG->dirroot.'/lib/statslib.php');
@@ -12,6 +17,7 @@
 	require_login();
 	global $USER;
 	
+	// Excel report generation starts here
 	if(is_siteadmin($USER->id) && isset($_POST['reportfor']) && trim($_POST['reportfor']) != null){
 		switch(trim($_POST['reportfor'])){
 			case "loginrep":
@@ -24,7 +30,7 @@
 							$todate = strtotime(trim($_POST['todate']));
 							// echo $fromdate." , ".$todate." , ".$activity;
 							$returndata = $DB->get_records_sql("
-								SELECT COUNT( * ) AS TotalCount, ml.`course` AS CourseID, mc.`fullname` AS CourseName
+								SELECT ml.id,COUNT( * ) AS TotalCount, ml.`course` AS CourseID, mc.`fullname` AS CourseName
 								FROM  `mdl_log` ml
 								JOIN  `mdl_course` mc ON mc.id = ml.course
 								WHERE  `module` =  'course'
@@ -59,7 +65,7 @@
 							
 							for($i=0;$i<10;$i++){
 								$returndata = $DB->get_records_sql("
-									SELECT COUNT( * ) AS TotalCount, ml.`course` AS CourseID, mc.`fullname` AS CourseName
+									SELECT ml.id,COUNT( * ) AS TotalCount, ml.`course` AS CourseID, mc.`fullname` AS CourseName
 									FROM  `mdl_log` ml
 									JOIN  `mdl_course` mc ON mc.id = ml.course
 									WHERE  `module` =  'course'
@@ -72,7 +78,7 @@
 								);
 								foreach($returndata as $returnobj){
 									$newreturndata = $DB->get_records_sql("
-										SELECT COUNT( * ) AS TotalCount,mc.`fullname` AS CourseName,CONCAT(mu.firstname,' ',mu.lastname) as username
+										SELECT ml.id,COUNT( * ) AS TotalCount,mc.`fullname` AS CourseName,CONCAT(mu.firstname,' ',mu.lastname) as username
 										FROM  `mdl_log` ml
 										JOIN  `mdl_course` mc ON mc.id = ml.course
 										JOIN `mdl_user` mu ON mu.id = ml.userid
@@ -127,6 +133,8 @@
 		}
 		// and post then generate excel report and exit;
 	}
+	
+	// Moodle View starts here
 	
     echo $OUTPUT->header();
 	if(is_siteadmin($USER->id)){
