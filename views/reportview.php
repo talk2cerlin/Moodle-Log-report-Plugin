@@ -1,8 +1,15 @@
-<script src="js/jquery-1.10.2.min.js"></script>
+
 <link rel="stylesheet" href="css/jquery-ui.css">
 <link rel="stylesheet" href="css/bootstrap.min.css">
 <script src="js/jquery-ui.js"></script>
 <script>
+	$ = jQuery;
+	if(typeof jQuery == "undefined"){
+		var script = document.createElement('script');
+		script.src = 'js/jquery-1.10.2.min.js';
+		script.type = 'text/javascript';
+		document.getElementsByTagName('head')[0].appendChild(script);
+	}
  $(function() {
 	$( "#tabs" ).css('display','block');
     $( "#tabs" ).tabs();
@@ -48,6 +55,16 @@
 			</td>
 		</tr>
 		<tr>
+			<td><label class="label label-info"> Report Format </label></td>
+			<td> : </td>
+			<td>
+				<select name="reportformat">
+					<option value="graph" <?php if(isset($_POST['reportformat']) && trim($_POST['reportformat']) == "graph") echo "selected" ; ?>> Graph</option>
+					<option value="excel" <?php if(isset($_POST['reportformat']) && trim($_POST['reportformat']) == "excel") echo "selected" ; ?>> Excel</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
 			<td><input type="submit" class="btn" id="loginrepsubmit"></td>
 			<td></td>
 			<td></td>
@@ -78,14 +95,13 @@
 			dateFormat: "dd-mm-yy",
 			maxDate: 0,
 			onClose: function( selectedDate ) {
-				console.log(selectedDate);
 				$('#loginreptodate').datepicker( "option", "minDate", selectedDate );
 				// $('#todate').datepicker( "option", "maxDate", "31" );
 			}
 		});	
 		$( "#loginreptodate" ).datepicker({
 			dateFormat: "dd-mm-yy",
-			maxDate: 0
+			maxDate: 1
 		});
 	  });
 	  
@@ -131,21 +147,19 @@
 			dateFormat: "dd-mm-yy",
 			maxDate: 0,
 			onClose: function( selectedDate ) {
-				console.log(selectedDate);
 				$('#coursereptodate').datepicker( "option", "minDate", selectedDate );
 				// $('#todate').datepicker( "option", "maxDate", "31" );
 			}
 		});	
 		$( "#coursereptodate" ).datepicker({
 			dateFormat: "dd-mm-yy",
-			maxDate: 0
+			maxDate: 1
 		});
 		$('body').animate({scrollTop:0},'slow');
 	  });
 	  </script>
   </div>
   <div id="tabs-3">
-    <p>Mauris eleifend est et turpis. Duis id erat. Suspendisse potenti. Aliquam vulputate, pede vel vehicula accumsan, mi neque rutrum erat, eu congue orci lorem eget lorem. Vestibulum non ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce sodales. Quisque eu urna vel enim commodo pellentesque. Praesent eu risus hendrerit ligula tempus pretium. Curabitur lorem enim, pretium nec, feugiat nec, luctus a, lacus.</p>
-    <p>Duis cursus. Maecenas ligula eros, blandit nec, pharetra at, semper at, magna. Nullam ac lacus. Nulla facilisi. Praesent viverra justo vitae neque. Praesent blandit adipiscing velit. Suspendisse potenti. Donec mattis, pede vel pharetra blandit, magna ligula faucibus eros, id euismod lacus dolor eget odio. Nam scelerisque. Donec non libero sed nulla mattis commodo. Ut sagittis. Donec nisi lectus, feugiat porttitor, tempor ac, tempor vitae, pede. Aenean vehicula velit eu tellus interdum rutrum. Maecenas commodo. Pellentesque nec elit. Fusce in lacus. Vivamus a libero vitae lectus hendrerit hendrerit.</p>
+    <p>Functionality under development</p>
   </div>
 </div>
