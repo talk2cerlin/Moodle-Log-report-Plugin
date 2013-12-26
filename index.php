@@ -4,17 +4,18 @@
 * @author 	: Cerlin ST - https://github.com/tak2cerlin
 * @version 	: 0.0.1
 **/
-
+	$errormod = 0;
     require_once('../../../config.php');
     require_once($CFG->dirroot.'/lib/statslib.php');
     require_once($CFG->libdir.'/adminlib.php');
-	// error_reporting(E_ALL);
-	// ini_set ('display_errors', 'on');
-	// ini_set ('log_errors', 'on');
-	// ini_set ('display_startup_errors', 'on');
-	// ini_set ('error_reporting', E_ALL);
-	// $CFG->debug = DEBUG_ALL;
-	require_login();
+	if($errormod == 1){
+		error_reporting(E_ALL);
+		ini_set ('display_errors', 'on');
+		ini_set ('log_errors', 'on');
+		ini_set ('display_startup_errors', 'on');
+		ini_set ('error_reporting', E_ALL);
+		$CFG->debug = DEBUG_ALL;
+	}	require_login();
 	global $USER;
 	
 	$fromXaxis = '[]';
@@ -185,8 +186,7 @@
 						if(trim($_POST['reportformat']) == "excel"){
 							$exceltitle[] = "Dates";
 							$exceltitle[] = "Count";
-							$excelwrite = new LogReporting();
-							$excelwrite->excelReportGenerator($exceltitle,$exceldata);
+							$getmon->excelReportGenerator($exceltitle,$exceldata);
 						}
 					}
 					elseif(trim($_POST['reportype']) == "yearly"){
@@ -263,7 +263,6 @@
 							$excel = new PHPExcel();
 							$fromdate = strtotime(trim($_POST['fromdate']));
 							$todate = strtotime(trim($_POST['todate']));
-							// echo $fromdate." , ".$todate." , ".$activity;
 							
 							for($i=0;$i<10;$i++){
 								$returndata = $DB->get_records_sql("
@@ -343,7 +342,7 @@
 	if(is_siteadmin($USER->id)){
 		echo $OUTPUT->heading("Custom Reports from logs");
 		$lgrp = new LogReporting();
-		$lgrp->loadview('reportview');
+		$lgrp->loadview('reportview',array('url'=>$CFG->wwwroot.'/'.$CFG->admin));
 		if(!empty($exceldata)){
 			$lgrp->loadview('graphview',array('fromXaxis'=>$fromXaxis,'reportdata'=>$reportdata,'title'=>$title));
 		}
@@ -354,10 +353,6 @@
     echo $OUTPUT->footer();
 
 	class LogReporting{
-	
-		public function showmsg(){
-			echo "This is inside showmsg function";
-		}
 		
 		public function loadview($filename,$vars = array()){
 			foreach($vars as $key => $value){
@@ -367,7 +362,7 @@
 				include './views/'.$filename.".php";
 			}
 			else{
-				echo "Not Working";
+				echo "File name ".$filename." is not included";
 			}
 		}
 		
